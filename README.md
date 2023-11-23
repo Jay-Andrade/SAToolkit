@@ -1,21 +1,13 @@
-SynPS is Synivate's internal PowerShell module, it contains numerous common standardized functions that can be used in scripting and automation on client devices.
-
-Developed and Maintained by the Synivate Engineering team.
+SACommon is a publically available PowerShell module, it contains numerous common standardized functions that can be used in scripting and automation on client devices.
 
 Please use GitHub issues to note any bugs or request new functions (Prepend new functions with "Function Request:)
-
-#######################################################################################
-
-The module will be loaded onto all devices in N-Able via Chocolatey. The module needs to be imported at the beginning of all Synivate developed PowerShell scripts. When ran as NTAuthority\System, the module requires input of the name of the AMP/Script/Program importing the module for logging purposes. The module will fail to import when running as system if this is not specified. (When running outside of system context, this is optional but still strongly recommend for clear logging).
-
-Import-Module $env:systemdrive\**\**\SynPS\SynPS.psd1 -ArgumentList '- EXAMPLE - Enter AMP Name Here'.
 
 #######################################################################################
 
 Development Guidelines:
 
 General:
-- Any code that is considered essential and must run when the module is imported must be added to SynPS.psm1
+- Any code that is considered essential and must run when the module is imported must be added to SACommon.psm1
 - All code should be commented to a reasonable degree
 - When a new version of the module is ready to be published, it will need to be 'released' in order to be picked up by Chocolatey
 - At least ** hours should be given after a release before it can be assumed that the new version has been disseminated to most devices
