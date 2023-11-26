@@ -26,7 +26,7 @@ Creates/Sets the registry key "Example Name" with string value "Example Value" a
 
 .EXAMPLE
 Set-RegKey "Example Name" "Example Value"
-Creates/Sets the registry key "Example Name" with type String by default and value "Example Value" in the default location: "HKLM:\SOFTWARE\SACommon\".
+Creates/Sets the registry key "Example Name" with type String by default and value "Example Value" in the default location: "HKLM:\SOFTWARE\SAToolkit\".
 
 .EXAMPLE
 Set-RegKey -regkey $regKey -keyname "Example Name" -deletekey
@@ -35,7 +35,7 @@ Deletes the key provided. Mote: will fail silently.
 function Set-RegKey {
     Param (
         [Parameter(Position = 0)]
-        $regKey = "HKLM:\SOFTWARE\SACommon\",
+        $regKey = "HKLM:\SOFTWARE\SAToolkit\",
 
         [Parameter(Mandatory = $TRUE, Position = 1)]
         $keyName,

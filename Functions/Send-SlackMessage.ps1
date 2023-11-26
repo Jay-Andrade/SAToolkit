@@ -35,7 +35,7 @@ function Send-SlackMessage {
         [String]$Url, 
 
         [Parameter(Position = 2)]
-        [String]$Username = 'SACommon',
+        [String]$Username = 'SAToolkit',
 
         [Parameter(Mandatory = $TRUE, Position = 3)] #RMM Automation chanel by default
         [String]$Channel,

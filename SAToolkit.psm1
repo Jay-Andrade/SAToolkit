@@ -1,4 +1,4 @@
-$workingdir = "$env:systemdrive\SACommon\"
+$workingdir = "$env:systemdrive\SAToolkit\"
 
 try{
     if ((Test-Path $workingdir) -ne $TRUE) {
