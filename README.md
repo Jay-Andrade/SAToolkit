@@ -1,4 +1,4 @@
-SACommon is a publically available PowerShell module, it contains numerous common standardized functions that can be used in scripting and automation on client devices.
+SAToolkit is a publically available PowerShell module, it contains numerous common standardized functions that can be used in scripting and automation on client devices.
 
 Please use GitHub issues to note any bugs or request new functions (Prepend new functions with "Function Request:)
 
@@ -7,7 +7,7 @@ Please use GitHub issues to note any bugs or request new functions (Prepend new 
 Development Guidelines:
 
 General:
-- Any code that is considered essential and must run when the module is imported must be added to SACommon.psm1
+- Any code that is considered essential and must run when the module is imported must be added to SAToolkit.psm1
 - All code should be commented to a reasonable degree
 - When a new version of the module is ready to be published, it will need to be 'released' in order to be picked up by Chocolatey
 - At least ** hours should be given after a release before it can be assumed that the new version has been disseminated to most devices
