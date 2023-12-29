@@ -39,11 +39,6 @@ function Push-FiletoAzBlob {
     $azcopy = "$env:temp\azcopy.exe"
     Invoke-PSDownload -url 'https://aka.ms/downloadazcopy-v10-windows' -fullPath $azcopy
 
-    #Confirm AZCopy hash
-    if (((Get-FileHash $azcopy).hash) -ne "3808CD286E24AFDA0D20C72E25A466C1CAA43F8D8B1A0FEAC8DFDDA6F7492BCD") {
-        throw "AZCopy hash does not match."
-    }
-
     #Sanitize file of spaces if necessary
     if (($file -match " ") -and (Test-Path $file)){
         $spacelessPath = Remove-Spaces -inputString $file
