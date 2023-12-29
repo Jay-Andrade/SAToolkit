@@ -66,8 +66,8 @@ function Send-SlackMessage {
 
     try {
         Invoke-RestMethod @Params
-        Write-Syslog -category 'INFO' -message "Posted message to Slack successfully." -displayMessage
+        Write-Syslog -category 'INFO' -message "Posted message to Slack successfully."
     } catch {
-        Write-Syslog -category 'ERROR' -message "Failed to post message to Slack: $_" -displayMessage
+        Write-Syslog -category 'ERROR' -message "Failed to post message to Slack: $_"
     }
 }
