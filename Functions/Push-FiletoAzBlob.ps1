@@ -59,17 +59,17 @@ function Push-FiletoAzBlob {
         try {
             Start-Process -Wait -NoNewWindow -FilePath $azcopy -ArgumentList "copy $payload $SASURL"
         } catch {
-            Write-Syslog -category 'ERROR' -message "Failed to upload $payload to Blob: $_" -displayMessage
+            Write-Syslog -category 'ERROR' -message "Failed to upload $payload to Blob: $_"
             break #don't continue with stuff in if but don't fully return/exit
         }
         
         $fullOutputURL = $container + [System.IO.Path]::GetFileName($file)
-        Write-Syslog -category 'INFO' -message "Uploaded $file to Azure Blob: $fullOutputURL" -displayMessage
+        Write-Syslog -category 'INFO' -message "Uploaded $file to Azure Blob: $fullOutputURL"
         if ($deleteInputFile) {
             Remove-Item $file -Force
         }
     } else {
-        Write-Syslog -category 'ERROR' -message "$payload not found, cannot upload nonexistant file. Ignoring delete flag if present." -displayMessage
+        Write-Syslog -category 'ERROR' -message "$payload not found, cannot upload nonexistant file. Ignoring delete flag if present."
     }
 
     if ($sanitizedFile) {
