@@ -1,6 +1,10 @@
 SAToolkit is a publically available PowerShell module for Systems Administrators, it contains numerous common standardized functions that can be used in scripting and automation on client devices. It is mainly intended a Windows Powershell environment and some functions may be incompatable with non-Windows environment.
 
-Please use GitHub issues to note any bugs or request new functions (Prepend new functions with "Function Request:)
+Please use GitHub issues to note any bugs or request new functions (Prepend new functions with "Function Request:")
+
+#######################################################################################
+
+If you're interested in learning more about the module or it's development, please check out this blog post I wrote about SAToolkit: https://gtio.tech/developing-a-powershell-module/
 
 #######################################################################################
 
