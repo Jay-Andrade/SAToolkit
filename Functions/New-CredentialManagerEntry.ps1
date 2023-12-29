@@ -44,7 +44,7 @@ function New-CredentialManagerEntry {
     }
     
     if ((Get-FileHash $cmdll).hash -ne '00413E280C97E167BB7246CE39FCEA52F5C1BB47E53D7C451A298EC0B5783A2D') {
-        Write-Syslog -catagory 'ERROR' -message "Hash does not match for CredentialManager.dll. Are you sure this is the right file?" -displayMessage
+        Write-Syslog -catagory 'ERROR' -message "Hash does not match for CredentialManager.dll. Are you sure this is the right file?"
         exit
     }
 
@@ -80,9 +80,9 @@ function New-CredentialManagerEntry {
     $credentialManagerEntryFound = Receive-Job -Name CM
 
     if ($credentialManagerEntryFound) {
-        Write-Syslog -category 'INFO' -message "Created Windows Credential Manager entry or confirmed entry already present for target: $targetAddress" -displayMessage
+        Write-Syslog -category 'INFO' -message "Created Windows Credential Manager entry or confirmed entry already present for target: $targetAddress"
     } else {
-        Write-Syslog -category 'ERROR' -message "Could not confirm creation or existance of Windows Credential Manager entry for target: $targetAddress" -displayMessage
+        Write-Syslog -category 'ERROR' -message "Could not confirm creation or existance of Windows Credential Manager entry for target: $targetAddress"
     }
 
     Remove-Item $cmdll

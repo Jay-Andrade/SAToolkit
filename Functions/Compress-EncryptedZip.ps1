@@ -57,7 +57,7 @@ function Compress-EncryptedZip {
     )
 
     if (!(Get-Package 7-zip*)) {
-        Write-Syslog -category 'ERROR' -message '7-Zip not installed. Install 7-Zip and re-try.' -displayMessage
+        Write-Syslog -category 'ERROR' -message '7-Zip not installed. Install 7-Zip and re-try.'
         return
     }
 
@@ -103,13 +103,13 @@ function Compress-EncryptedZip {
 
     #Protect against missing filename in output path
     if (($outputFullPath.split('\')[-1]).Length -eq 0) {
-        Write-Syslog -catagory 'ERROR' -message 'OutputFullPath does not look like it has a destination file name. Exiting' -displayMessage
+        Write-Syslog -catagory 'ERROR' -message 'OutputFullPath does not look like it has a destination file name. Exiting'
         exit
     }
 
     #Protect against missing .zip extension in output path
     if (!($outputFullPath.ToLower() -match '\.zip$')) {
-        Write-Syslog -catagory 'WARN' -message ".zip not present at end of outputFullPath. Appending to outputFullPath." -displayMessage
+        Write-Syslog -catagory 'WARN' -message ".zip not present at end of outputFullPath. Appending to outputFullPath."
         $outputFullPath = $outputFullPath += '.zip'
     }
 
@@ -119,14 +119,14 @@ function Compress-EncryptedZip {
         Start-Process $process -ArgumentList "a $outputFullPath -p$key $sanitizedFile" -Wait
         Start-Sleep 5
 
-        Write-Syslog -category 'INFO' -message "Compressed and encrypted $inputItem and saved to $outputFullPath" -displayMessage
+        Write-Syslog -category 'INFO' -message "Compressed and encrypted $inputItem and saved to $outputFullPath"
 
         if (($deleteInputFile) -or ($deleteInputDirectory)) {
             Remove-Item $inputItem -Force
-            Write-Syslog -category 'WARN' -message "Removed $inputItem" -displayMessage
+            Write-Syslog -category 'WARN' -message "Removed $inputItem"
         }
     } catch {
-        Write-Syslog -catagory 'ERROR' -message "Failed to compress encrypted zip file $inputItem" -displayMessage
+        Write-Syslog -catagory 'ERROR' -message "Failed to compress encrypted zip file $inputItem"
     }
 
     Remove-Item $sanitizedFile -Force -Recurse

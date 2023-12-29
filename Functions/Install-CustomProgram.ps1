@@ -61,12 +61,12 @@ function Install-CustomProgram {
         $appName = $file_name
     }
 
-    Write-Syslog -category 'INFO' -message "Installing $($appName)" -displayMessage
+    Write-Syslog -category 'INFO' -message "Installing $($appName)"
 
     try {
         Start-Process -FilePath $download_exe -ArgumentList $arguments -Wait -NoNewWindow
-        Write-Syslog -category 'INFO' -message "Installed $($appName)" -displayMessage
-        Write-Syslog -category 'INFO' -message "Cleaning up...." -displayMessage
+        Write-Syslog -category 'INFO' -message "Installed $($appName)"
+        Write-Syslog -category 'INFO' -message "Cleaning up...."
         Remove-Item $download_exe -Force
         Remove-Item $download_xml -Force
     }

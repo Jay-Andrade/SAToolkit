@@ -42,7 +42,7 @@ function New-Shortcut {
     if (!(Test-Path -Path $shortcut)) {
         $createShortcut = $TRUE
     } elseif ((Test-Path -Path $shortcut) -and ($allowClobber)) {
-        Write-Syslog -category 'WARN' -message "Shortcut already exists, clobber is enabled. Deleting and recreating." -displayMessage
+        Write-Syslog -category 'WARN' -message "Shortcut already exists, clobber is enabled. Deleting and recreating."
         Remove-Item $shortcut -Force
         $createShortcut = $TRUE
     }
@@ -54,13 +54,13 @@ function New-Shortcut {
             $lnk.TargetPath = $shortcutTarget
             $lnk.IconLocation = "explorer.exe,0"
             $lnk.Save()
-            Write-Syslog -category 'INFO' -message "Created new shortcut: $shortcut" -displayMessage
+            Write-Syslog -category 'INFO' -message "Created new shortcut: $shortcut"
         } catch {
-            Write-Syslog -category 'ERROR' -message "Failed to create shortcut. Error: $_" -displayMessage
+            Write-Syslog -category 'ERROR' -message "Failed to create shortcut. Error: $_"
             break
         }
     } else {
-        Write-Syslog -category 'INFO' -message "Shortcut already exists and clobber is disabled. Doing nothing." -displayMessage
+        Write-Syslog -category 'INFO' -message "Shortcut already exists and clobber is disabled. Doing nothing."
     }
 
 }

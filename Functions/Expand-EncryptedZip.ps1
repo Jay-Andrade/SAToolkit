@@ -38,7 +38,7 @@ function Expand-EncryptedZip {
     )
 
     if (!(Get-Package 7-zip*)) {
-        Write-Syslog -category 'ERROR' -message '7-Zip not installed. Install 7-Zip and re-try.' -displayMessage
+        Write-Syslog -category 'ERROR' -message '7-Zip not installed. Install 7-Zip and re-try.'
         return
     }
 
@@ -49,14 +49,14 @@ function Expand-EncryptedZip {
         Start-Process $process -ArgumentList "x $inputFile -p$key -o$outputDirectory" -Wait
         Start-Sleep 5
 
-        Write-Syslog -category 'INFO' -message "Decrypted $inputFile and saved to $outputDirectory" -displayMessage
+        Write-Syslog -category 'INFO' -message "Decrypted $inputFile and saved to $outputDirectory"
 
         if ($deleteInputFile) {
             Remove-Item $inputFile -Force
-            Write-Syslog -category 'WARN' -message "Removed $inputFile" -displayMessage
+            Write-Syslog -category 'WARN' -message "Removed $inputFile"
         }
     } catch {
-        Write-Syslog -catagory 'ERROR' -message "Failed to decrypted zip file $inputFile" -displayMessage
+        Write-Syslog -catagory 'ERROR' -message "Failed to decrypted zip file $inputFile"
     }
 
     #Can't really offer any return as the function will be blind to what's in the zip it's decrypting 

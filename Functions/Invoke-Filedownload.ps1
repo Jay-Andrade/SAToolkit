@@ -77,11 +77,11 @@ function Invoke-Filedownload {
         }
 
         Start-Process -Wait -NoNewWindow -FilePath $azcopy -ArgumentList "copy $URL $fullPath"
-        Write-Syslog -category "INFO" -message "Downloaded: $fullPath via AZCopy" -displayMessage
+        Write-Syslog -category "INFO" -message "Downloaded: $fullPath via AZCopy"
         Remove-Item $azcopy
     } elseif (($useAZCopy) -and (!($URL -match "blob"))) {
         #azcopy switch, URL notmatch blob, fallback on PSDownload
-        Write-Syslog -category "WARN" -message "Supplied URL doesn't look like Azure Blob. Falling back to standard download" -displayMessage
+        Write-Syslog -category "WARN" -message "Supplied URL doesn't look like Azure Blob. Falling back to standard download"
         Invoke-PSDownload -url $url -fullPath $fullPath
     } else {
         #psdownload

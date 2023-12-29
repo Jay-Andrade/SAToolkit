@@ -15,12 +15,12 @@ function Invoke-PSDownload {
         $web_client = New-Object System.Net.WebClient
         $web_client.DownloadFile($url,$fullPath)
         if (!($disableLogging)) {
-            Write-Syslog -category "INFO" -message "Downloaded: $fullPath" -displayMessage
+            Write-Syslog -category "INFO" -message "Downloaded: $fullPath"
         }
         
     }
     catch {
         #Leaving this on by deafult to prevent issues bug hunting
-        Write-SysLog -category "ERROR" -message "Failed to download $url with error: $($_.Exception)" -displayMessage
+        Write-SysLog -category "ERROR" -message "Failed to download $url with error: $($_.Exception)"
     }
 }

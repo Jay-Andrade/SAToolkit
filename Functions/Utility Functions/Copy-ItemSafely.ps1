@@ -16,10 +16,10 @@ function Copy-ItemSafely {
         try {
             Copy-Item $inputPath $destinationPath -Recurse
         } catch {
-            Write-Syslog -catagory 'ERROR' -message "Failed to copy file. Error: $_" -displayMessage
+            Write-Syslog -catagory 'ERROR' -message "Failed to copy file. Error: $_"
         }
     } else {
-        Write-Syslog -catagory 'ERROR' -message "Could not safely copy file due to lack of disk space." -displayMessage
+        Write-Syslog -catagory 'ERROR' -message "Could not safely copy file due to lack of disk space."
         $destinationPath = $NULL
         return $NULL
     }
