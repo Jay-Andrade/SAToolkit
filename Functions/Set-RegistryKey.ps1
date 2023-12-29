@@ -128,18 +128,7 @@ function Set-RegistryKey {
         } 
     } catch {
         New-ItemProperty -Path $RegistryKey -Name $ValueName -PropertyType $ValueType -Value $ValueData -Force | Out-Null
-        if ($ValueName -like "Reboot Needed") {
-            Write-SysLog -category 'WARN' -message "Created 'Reboot Needed' registry value name. Set to $ValueData." -outputFile "$env:systemdrive\nable\rebootflag.log"
-        } else {
-            Write-SysLog -category 'WARN' -message "$ValueName does not exist. Creating now."
-        }
-    }
-    
-    #Not a duplicate, above if is in a catch
-    if ($ValueName -like "Reboot Needed") {
-        Write-SysLog -category "INFO" -message "Reboot Needed set to $ValueData" -outputFile "$env:systemdrive\nable\rebootflag.log"
-    } else {
-        Write-SysLog -category "INFO" -message "$ValueName set to $ValueData"
+        Write-SysLog -category 'WARN' -message "$ValueName does not exist. Creating now."
     }
 
     #Used for conformation of change
