@@ -5,34 +5,37 @@ This function download a file when provided with a URL.
 .PARAMETER url
 URL of file to download.
 
-.PARAMETER outputdirectory
-Directory where the file will be saved once downloaded. Defaults to: "$env:temp".
-
-.PARAMETER filename
-Manually specify the name the file will be saved with once downloaded.
-
-.PARAMETER generatefilename
-Will generate the filename based on the given URL.
+.PARAMETER OutputDirectory
+Directory where the file will be saved once downloaded. Defaults to: "$env:temp", file name will be generated.
+Override with another directory (with trailing \), or specify directory and filename. See examples for clarification
 
 .PARAMETER useAZCopy
 Switch. Will try to use AzCopy to transfer if file is in Azure Blob. Useful for large files.
+
+.PARAMETER TryCount
+Determines how many times the download will try to run. Defaults to 1
 
 .PARAMETER returnPath
 Switch. Will return the path of the downloaded file.
 
 .EXAMPLE
-Start-FileDownload -url $URL -outputdirectory 'C:\testdir\' -filename 'example.txt'
-Downloads a file using the provided URL and will output as C:\testdir\example.txt.
+Start-FileDownload -url $URL -OutputDirectory 'C:\testdir\'
+Downloads a file using the provided URL. generated the filename based on URL input and will output to C:\testdir\.
 
 .EXAMPLE
-Start-FileDownload $URL -filename 'exmple.txt'
+Start-FileDownload $URL -OutputDirectory 'C:\temp\example.txt'
 Downloads a file using the provided URL. Will save the file to the default directory: "$env:temp",
 and will name the file 'example.txt'.
 
 .EXAMPLE
-Start-FileDownload $URL -generatefilename
-Downloads a file using the provided URL. Will save the file to the default directory: "$env:temp",
-and will generate the name of the file based on the URL.
+Start-FileDownload $URL -UseAZCopy -TryCount 3
+Downloads a file using the provided URL. Will generate the filename and save the file to the default directory: "$env:temp".
+Will use AZCopy and will try the download 3 times if there are any errors.
+
+.EXAMPLE
+Start-FileDownload $URL -OutputDirectory 'C:\temp\files
+Downloads a file using the provided URL and will save it with filename 'files'. Prevent this behavior by adding trailing \ to 
+OutputDirectory input
 #>
 function Invoke-Filedownload {
     param (
@@ -40,52 +43,60 @@ function Invoke-Filedownload {
         [String]$URL,
 
         [Parameter(Position = 1)]
-        [String]$outputDirectory = "$env:temp",
+        [String]$OutputDirectory = "$env:temp",
 
-        [Parameter(ParameterSetName= 'Input Filename', Mandatory = $TRUE, Position = 2)]
-        [String]$fileName,
+        [Parameter()]
+        [Switch]$UseAZCopy,
 
-        [Parameter(ParameterSetName= 'Generate Filename', Mandatory = $TRUE, Position = 2)]
-        [Switch]$generateFileName, #kind of a dummy parameter but seems to be best practice to include it for legibility purposes
+        [Parameter(Position = 2)]
+        [Int32]$TryCount = 1,
 
-        [Parameter]
-        [Switch]$useAZCopy,
-
-        [Parameter]
-        [Switch]$returnPath
+        [Parameter()]
+        [Switch]$ReturnPath
     )
 
-    if (!($fileName)) {
-        $FileName = [System.IO.Path]::GetFileName($URL)
+    if (($OutputDirectory[-1] -eq '\') -and (!($outputdirectory.Split('\')[-1] | Select-String "."))) {
+        $fileName = [System.IO.Path]::GetFileName($URL)
+        $OutputDirectory = $OutputDirectory + $fileName
     }
 
-    $fullPath = "$outputDirectory\$fileName"
 
-    if (($useAZCopy) -and ($URL -match "blob")) {
-        #use AZCopy
-        $azcopy = "$env:temp\azcopy.exe"
-        Invoke-PSDownload -url 'https://aka.ms/downloadazcopy-v10-windows' -fullPath $azcopy
-
-        #Move this to Remove-Spaces
-        if ($URL -match " ") {
-            $URL = $URL.replace(" ","%20")
-            $fullPath = $fullPath.Replace(" ","")
+    for ($i = 0; $i -lt $TryCount; $i++) {
+        try {
+            if (($UseAZCopy) -and ($URL -match "blob")) {
+                #use AZCopy
+                $azcopy = "$env:temp\azcopy.exe"
+                Invoke-PSDownload -url 'https://aka.ms/downloadazcopy-v10-windows' -fullPath $azcopy -DisableLogging
+        
+                if ($URL -match " ") {
+                    $URL = Remove-Spaces -InputString $URL
+                    $OutputDirectory = Remove-Spaces -InputString $OutputDirectory
+                }
+        
+                Start-Process -Wait -NoNewWindow -FilePath $azcopy -ArgumentList "copy $URL $OutputDirectory"
+                Write-Syslog -category "INFO" -message "Downloaded: $OutputDirectory via AZCopy"
+                Remove-Item $azcopy
+                break
+            } elseif (($UseAZCopy) -and (!($URL -match "blob"))) {
+                #azcopy switch, URL notmatch blob, fallback on PSDownload
+                Write-Syslog -category "WARN" -message "Supplied URL doesn't look like Azure Blob. Falling back to standard download"
+                Invoke-PSDownload -url $URL -fullPath $OutputDirectory
+                break
+            } else {
+                #psdownload
+                Invoke-PSDownload -url $URL -fullPath $OutputDirectory
+                break
+            }
+        } catch {
+            $tryCount = $i + 1 #for legibility since loop starts at 0
+            $triesLeft = $retryCount - $i
+            Write-Syslog -Category "ERROR" -Message "Download try $tryCount failed. Retrying $triesLeft more times."
+            Start-Sleep 15
         }
-
-        Start-Process -Wait -NoNewWindow -FilePath $azcopy -ArgumentList "copy $URL $fullPath"
-        Write-Syslog -category "INFO" -message "Downloaded: $fullPath via AZCopy"
-        Remove-Item $azcopy
-    } elseif (($useAZCopy) -and (!($URL -match "blob"))) {
-        #azcopy switch, URL notmatch blob, fallback on PSDownload
-        Write-Syslog -category "WARN" -message "Supplied URL doesn't look like Azure Blob. Falling back to standard download"
-        Invoke-PSDownload -url $url -fullPath $fullPath
-    } else {
-        #psdownload
-        Invoke-PSDownload -url $url -fullPath $fullPath
     }
-
-    if ($returnPath) {
-        return $fullPath
+    
+    if ($ReturnPath) {
+        return $OutputDirectory
     }
 }
 Set-Alias -Name 'Download-File' -Value 'Invoke-Filedownload'
