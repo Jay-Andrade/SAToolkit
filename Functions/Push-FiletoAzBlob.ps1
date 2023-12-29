@@ -5,8 +5,6 @@ This function will upload a file to Azure Blob storage
 .PARAMETER file
 Full path of file to upload
 
-.PARAMETER blobContainer
-URL of Az Blob container
 
 .PARAMETER sasurl
 SAS token URL to upload to blob container.
@@ -18,16 +16,13 @@ Switch. Will return the generated blob URL to the file.
 Switch. Will delete the input file if successfully uploaded to blob.
 
 .EXAMPLE
-Push-FiletoAzBlob -file "C:\example\example.txt" -blobContainer $container -SASURL $SASURL
-Will upload the input file to specified blob container
+Push-FiletoAzBlob -file "C:\example\example.txt" -SASURL $SASURL
+Will upload the input file to specified blob container using the given SAS URL
 #>
 function Push-FiletoAzBlob {
     param (
         [Parameter(Mandatory = $TRUE, Position = 0)]
         [String]$file,
-
-        [Parameter(Mandatory = $TRUE, Position = 1)]
-        [String]$blobContainer,
 
         [Parameter(Mandatory = $TRUE, Position = 2)]
         [String]$SASURL,
@@ -38,6 +33,8 @@ function Push-FiletoAzBlob {
         [Parameter(Position = 4)]
         [Switch]$deleteInputFile
     )
+
+    $container = $SASURL.split('?')[0]
 
     $azcopy = "$env:temp\azcopy.exe"
     Invoke-PSDownload -url 'https://aka.ms/downloadazcopy-v10-windows' -fullPath $azcopy
@@ -66,7 +63,7 @@ function Push-FiletoAzBlob {
             break #don't continue with stuff in if but don't fully return/exit
         }
         
-        $fullOutputURL = $blobContainer + [System.IO.Path]::GetFileName($file)
+        $fullOutputURL = $container + [System.IO.Path]::GetFileName($file)
         Write-Syslog -category 'INFO' -message "Uploaded $file to Azure Blob: $fullOutputURL" -displayMessage
         if ($deleteInputFile) {
             Remove-Item $file -Force
