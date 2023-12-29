@@ -147,4 +147,4 @@ function Set-RegistryKey {
         return ((Get-Item -Path $RegistryKey).GetValue($ValueName))
     }
 }
-Set-Alias -Name 'Set-RegistryKey' -Value 'Set-RegistryKey'
+Set-Alias -Name 'Set-RegKey' -Value 'Set-RegistryKey'
