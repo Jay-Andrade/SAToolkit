@@ -50,6 +50,8 @@ function Get-SystemInfo
         
         $rebootPending = Test-PendingReboot
 
+        $publicIP = Get-PublicIP
+
         #Add everything into an ordered hashtable
         $systemInfo = [ordered]@{}
         $systemInfo.Add("Name",$computerInfo.CsCaption)
@@ -62,6 +64,7 @@ function Get-SystemInfo
         $systemInfo.Add("Processor",$computerInfo.CsProcessors)
         $systemInfo.Add("SerialNumber",$computerInfo.BiosSeralNumber)
         $systemInfo.Add("RebootPending",$rebootPending)
+        $systemInfo.Add("PublicIP",$publicIP)
         $systemInfo.Add("BIOSVersion",$biosVersion)
         $systemInfo.Add("RAM",$ramCapacity)
         $systemInfo.Add("Disk",[int32]$diskSize)
