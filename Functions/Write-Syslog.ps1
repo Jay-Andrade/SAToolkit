@@ -42,7 +42,9 @@ function Write-Syslog {
         default { $etype = 4; break}
     }
 
-    $logSize = (Get-ItemProperty $OutputFile).Length/1MB
+    try {
+        $logSize = (Get-ItemProperty $OutputFile).Length/1MB
+    } catch {}
     if ($logSize -gt 1.0) {
         #Cannot call Write-Syslog normally for logging as function will infinetly recurse
         $dateThreshold = (Get-Date).AddDays(-30)
