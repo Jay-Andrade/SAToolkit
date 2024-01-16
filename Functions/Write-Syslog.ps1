@@ -43,7 +43,7 @@ function Write-Syslog {
     }
 
     try {
-        $logSize = (Get-ItemProperty $OutputFile).Length/1MB
+        $logSize = (Get-ItemProperty $OutputFile -ErrorAction SilentlyContinue).Length/1MB
     } catch {}
     if ($logSize -gt 1.0) {
         #Cannot call Write-Syslog normally for logging as function will infinetly recurse
