@@ -56,7 +56,7 @@ function Compress-EncryptedZip {
         [Switch]$returnPath
     )
 
-    if (!(Get-Package 7-zip*)) {
+    if ((Get-ApplicationInformation 7zip) -eq 'Not Installed') {
         Write-Syslog -category 'ERROR' -message '7-Zip not installed. Install 7-Zip and re-try.'
         return
     }
