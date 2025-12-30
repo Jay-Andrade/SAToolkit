@@ -37,9 +37,21 @@ function Write-Syslog {
     )
     
     switch ($Category) {
-        'ERROR' { $etype = 1; break}
-        'WARN' { $etype = 2; break}
-        default { $etype = 4; break}
+        'ERROR' {
+            $etype = 1
+            $textColor = 'Red'
+            break
+        }
+        'WARN' {
+            $etype = 2
+            $textColor = 'Yellow'
+            break
+        }
+        default {
+            $etype = 4
+            $textColor = 'Green'
+            break
+        }
     }
 
     try {
