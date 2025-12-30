@@ -36,3 +36,9 @@ Utility Functions
 - Utility functions do not need a comment-based help system, regular commenting is sufficuent
 
 #######################################################################################
+
+Credit:
+
+- [DeployWindowsCom](https://github.com/DeployWindowsCom/DeployWindows-Scripts/blob/master/Azure%20AD/Get-AadJoinInformation.ps1) for the bones of Get-EntraIDJoinStatus, and all of it's associated C# code
+
+#######################################################################################
