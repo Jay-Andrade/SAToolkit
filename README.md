@@ -4,7 +4,7 @@ Please use GitHub issues to note any bugs or request new functions (Prepend new 
 
 #######################################################################################
 
-If you're interested in learning more about the module or it's development, please check out this blog post I wrote about SAToolkit: https://gtio.tech/developing-a-powershell-module/
+If you're interested in learning more about the module or it's development, please check out this blog post: https://gtio.tech/developing-a-powershell-module/
 
 #######################################################################################
 
@@ -15,12 +15,12 @@ General:
 - All code should be commented to a reasonable degree
 
 ALL Functions (Production and Utility):
-- Should have their own .ps1 file named after the function, containing only the function and it's comments
-- Should follow standard Microsoft naming guidelines Verb-Noun, using approved verbs only (Get-Verb)
-- All logging should be done using Write-Syslog, always call both -displayMessage and -displaySource
+- Should have their own .ps1 file named after the function, containing only the function, it's comments, and any aliases
+- Should follow standard Microsoft naming guidelines Verb-Noun, using approved verbs only (reference Get-Verb)
+- All logging should be done using Write-Syslog
 - Should be developed to allow for multiple possible use cases
 - Should be reasonably resliant against scripter error
-- Should aim to never fail silently, and should always log on success or failure
+- Should aim to never fail silently, and never make changes silently
 - Only mandatory parameters should have the tag (Mandatory = $TRUE) for clarity purposes
 - Should aim to use clear and readable code that is still concise
 
@@ -36,4 +36,3 @@ Utility Functions
 - Utility functions do not need a comment-based help system, regular commenting is sufficuent
 
 #######################################################################################
-
