@@ -51,24 +51,22 @@ function Set-RegistryKey {
 
         [Parameter(ParameterSetName= 'Add/Adjust')]
         [Switch]$Return
-
     )
 
     $usr = [Environment]::UserName
     if (($usr -like "SYSTEM") -and (($RegistryKey -match '^HKEY_CURRENT_USER') -or ($RegistryKey -match '^HKCU:'))) {
         #Determine if we're running as NTAUTHORITY\System, and if we are, attempt to get the SID of the current logged-in user.
-        try {
-            $User = New-Object System.Security.Principal.NTAccount((Get-WmiObject -Class win32_computersystem).UserName.split('\')[1])
-            $currentUserSID = $User.Translate([System.Security.Principal.SecurityIdentifier]).value
+        $currentUserSID = Get-LoggedInUserSID
+        if ($NULL -ne $currentUserSID) {
             $notice = "Detected HKCU entry, caller is NTAUTHORITY\System. Addressing HKU via current logged on user's SID: $currentuserSID"
             Write-Syslog -Category 'INFO' -Message $notice
-        } catch {
+        } else {
             $err = "Detected HKCU entry, caller is NTAUTHORITY\System. Failed to get current user SID. Error: $_"
             Write-Syslog -Category 'ERROR' -Message $err
             return
         }
     }
-    
+
     #Replace shorthand for creation of key if nonexistant.
     #Special treatment needed for HKEY_CURRENT_USER
     if ($RegistryKey -match "^HKLM:") {
@@ -96,6 +94,7 @@ function Set-RegistryKey {
         $sanitizedKeyPath = $RegistryKey -replace '^HKU:', "HKEY_USERS"
     }
 
+    #Handle -delete flag
     if (($Delete) -and ($ValueName -notlike "Reboot Needed")) {
         Try {
             Remove-ItemProperty -Path $RegistryKey -Name $ValueName -Force -ErrorAction Stop
@@ -115,6 +114,8 @@ function Set-RegistryKey {
         Write-Syslog -category 'WARN' -message "Registry key path $RegistryKey did not exist. Creating now."
     }
 
+    $existingValueData = Get-RegistryKey -RegistryKey $RegistryKey -ValueName $ValueName -Silent
+
     #Prevents .ToLower() happening to an int and causing issues but doesn't override supplied input value
     if (($ValueData.GetType()).name -eq 'String') {
         $keyCheck = $ValueData.ToLower()
@@ -123,12 +124,24 @@ function Set-RegistryKey {
     }
 
     try {
-        if ((Get-Item -Path $RegistryKey).GetValue($ValueName).ToLower() -ne $keyCheck) {
-            Set-ItemProperty -Path $RegistryKey -Name $ValueName -Value $ValueData -Force | Out-Null
-        } 
+        #Nested if to avoid calling .tolower on a non-string value and getting kicked to catch
+        if ((((Get-Item -Path $RegistryKey).GetValue($ValueName)).gettype()).name -eq 'String') {
+            if ((Get-Item -Path $RegistryKey).GetValue($ValueName).ToLower() -ne $keyCheck) {
+                Set-ItemProperty -Path $RegistryKey -Name $ValueName -Value $ValueData -Force | Out-Null
+            } 
+        } else {
+            if ((Get-Item -Path $RegistryKey).GetValue($ValueName) -ne $keyCheck) {
+                Set-ItemProperty -Path $RegistryKey -Name $ValueName -Value $ValueData -Force | Out-Null
+            } 
+        }
     } catch {
         New-ItemProperty -Path $RegistryKey -Name $ValueName -PropertyType $ValueType -Value $ValueData -Force | Out-Null
         Write-SysLog -category 'WARN' -message "$ValueName does not exist. Creating now."
+    }
+    
+    #Key has been updated/create, write to syslog
+    if ($existingValueData -ne $ValueData) {
+        Write-SysLog -category "INFO" -message "$ValueName set to $ValueData"
     }
 
     #Used for conformation of change
