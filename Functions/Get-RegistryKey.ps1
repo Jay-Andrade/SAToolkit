@@ -17,18 +17,21 @@ function Get-RegistryKey {
         [String]$RegistryKey,
 
         [Parameter(Mandatory = $TRUE, Position = 1)]
-        [String]$ValueName
+        [String]$ValueName,
+
+        [Switch]$Silent
     )
 
     $usr = [Environment]::UserName
     if (($usr -like "SYSTEM") -and (($RegistryKey -match '^HKEY_CURRENT_USER') -or ($RegistryKey -match '^HKCU:'))) {
         #Determine if we're running as NTAUTHORITY\System, and if we are, attempt to get the SID of the current logged-in user.
-        try {
-            $User = New-Object System.Security.Principal.NTAccount((Get-WmiObject -Class win32_computersystem).UserName.split('\')[1])
-            $currentUserSID = $User.Translate([System.Security.Principal.SecurityIdentifier]).value
+        $currentUserSID = Get-LoggedInUserSID
+        if ($NULL -ne $currentUserSID) {
             $notice = "Detected HKCU entry, caller is NTAUTHORITY\System. Addressing HKU via current logged on user's SID: $currentuserSID"
-            Write-Syslog -Category 'INFO' -Message $notice
-        } catch {
+            if (!($Silent)) {
+                Write-Syslog -Category 'INFO' -Message $notice
+            }
+        } else {
             $err = "Detected HKCU entry, caller is NTAUTHORITY\System. Failed to get current user SID. Error: $_"
             Write-Syslog -Category 'ERROR' -Message $err
             return
@@ -68,7 +71,9 @@ function Get-RegistryKey {
             #Key exists, value does not
             Write-Syslog -Category 'WARN' -Message "Registry path ($RegistryKey) exists, but the specified value name ($valueName) does not"
         } else {
-            Write-Syslog -Category 'INFO' -Message "($RegistryKey\$valueName) exists and is set to $returnValue"
+            if (!($Silent)) {
+                Write-Syslog -Category 'INFO' -Message "($RegistryKey\$valueName) exists and is set to $returnValue"
+            }
         }
     } else {
         Write-Syslog -category 'WARN' -message "Registry key path $RegistryKey does not exist. Returning NULL"
