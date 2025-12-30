@@ -55,8 +55,17 @@ function Invoke-Filedownload {
         [Switch]$ReturnPath
     )
 
+    #If the output directory variable ends with \ and the previous item in the path doesn't contain a file extension, pull $fileName from URL itself
     if (($OutputDirectory[-1] -eq '\') -and (!($outputdirectory.Split('\')[-1] | Select-String "."))) {
-        $fileName = [System.IO.Path]::GetFileName($URL)
+
+        #Need to sanitize input for case where input URL is a Blob SAS url
+        if ($URL -match '^https:\/\/[^\/]+\.blob\.core\.windows\.net\/[^?]+\?.+$') {
+            $sanitizedURL = $url.split('?')[0]
+        } else {
+            $sanitizedURL = $url
+        }
+
+        $fileName = [System.IO.Path]::GetFileName($sanitizedURL)
         $OutputDirectory = $OutputDirectory + $fileName
     }
 
@@ -66,7 +75,7 @@ function Invoke-Filedownload {
             if (($UseAZCopy) -and ($URL -match "blob")) {
                 #use AZCopy
                 $azcopy = "$env:temp\azcopy.exe"
-                Invoke-PSDownload -url 'https://aka.ms/downloadazcopy-v10-windows' -fullPath $azcopy -DisableLogging
+                Invoke-PSDownload -url 'https://aka.ms/downloadazcopy-v10-windows' -fullPath $azcopy -DisableLogging #Pull latest version from Microsoft
         
                 if ($URL -match " ") {
                     $URL = Remove-Spaces -InputString $URL
