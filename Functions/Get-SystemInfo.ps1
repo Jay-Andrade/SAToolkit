@@ -5,7 +5,6 @@ It's designed as an improved, more accurate, and more concise version of Get-Com
 
 .EXAMPLE
 $systemInfo = Get-SystemInfo
-Tests if a reboot is needed and outputs to the variable $rebootNeeded
 #>
 function Get-SystemInfo
 {
@@ -24,8 +23,12 @@ function Get-SystemInfo
         $diskInfo =Get-PSDrive C
         $diskFree = $diskInfo.Free /1GB
         $diskSize = $diskFree + ($diskInfo.used / 1GB)
+        $diskSize = [int32]$diskSize
+        $diskFree = [int32]$diskFree
         
         $uptime = ((Get-Date) - ($computerInfo.OsLastBootUpTime))
+        $uptimeHours = [int32]$uptime.totalhours
+        $uptimeDays = [math]::round($uptime.totaldays,2)
         
         $ramsticks = (Get-CimInstance win32_physicalmemory).Capacity
         $ramCapacity = 0
@@ -50,27 +53,37 @@ function Get-SystemInfo
         
         $rebootPending = Test-PendingReboot
 
+        $eidJoinData = Get-EntraIDJoinStatus
+        if ($eidJoinData -ne "Device is not Entra ID Joined") {
+            $eidStatus = "Device is Entra ID Joined to $($eidJoinData.TenantDisplayName)"
+        } else {
+            $eidStatus = $eidJoinData
+        }
+
         $publicIP = Get-PublicIP
 
         #Add everything into an ordered hashtable
-        $systemInfo = [ordered]@{}
-        $systemInfo.Add("Name",$computerInfo.CsCaption)
-        $systemInfo.Add("OS",$computerInfo.OSName)
-        $systemInfo.Add("OSVersion",$ReleaseID)
-        $systemInfo.Add("Domain",$computerInfo.CsDomain)
-        $systemInfo.Add("DomainController",$dcStatus)
-        $systemInfo.Add("Manufacturer",$computerInfo.CsManufacturer)
-        $systemInfo.Add("Model",$manufacturer)
-        $systemInfo.Add("Processor",$computerInfo.CsProcessors)
-        $systemInfo.Add("SerialNumber",$computerInfo.BiosSeralNumber)
-        $systemInfo.Add("RebootPending",$rebootPending)
-        $systemInfo.Add("PublicIP",$publicIP)
-        $systemInfo.Add("BIOSVersion",$biosVersion)
-        $systemInfo.Add("RAM",$ramCapacity)
-        $systemInfo.Add("Disk",[int32]$diskSize)
-        $systemInfo.Add("DiskFree",[int32]$diskFree)
-        $systemInfo.Add("UptimeHours",[int32]$uptime.totalhours)
-        $systemInfo.Add("UptimeDays",[math]::round($uptime.totaldays,2))
+        $systemInfo = [ordered]@{
+            Name = $computerInfo.CsCaption
+            OS = $computerInfo.OSName
+            OSVersion = $ReleaseID
+            Domain = $computerInfo.CsDomain
+            EntraIDJoinStatus = $eidStatus
+            isDomainController = $dcStatus
+            Manufacturer = $computerInfo.CsManufacturer
+            Model = $manufacturer
+            Processor = $computerInfo.CsProcessors
+            SerialNumber = $computerInfo.BiosSeralNumber
+            RebootPending = $rebootPending
+            PublicIP = $publicIP
+            BIOSVersion = $biosVersion
+            RAM = $ramCapacity
+            Disk = $diskSize
+            DiskFree = $diskFree
+            UptimeHours = $uptimeHours
+            UptimeDays = $uptimeDays
+        }
+
     } catch {
         Write-Syslog -Category 'ERROR' -Message "Failed to get system information. Error: $_"
         $systemInfo = $NULL
